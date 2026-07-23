@@ -1,0 +1,65 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --color-cream: #ede4dd;
+    --color-taupe: #d2cac3;
+    --color-black: #000000;
+    --color-neutral-900: #171717;
+    --color-red: #ff0001;
+    --ease-out-smooth: cubic-bezier(0.87, 0, 0.13, 1);
+  }
+
+  html, body {
+    background-color: var(--color-cream);
+    color: var(--color-black);
+    font-family: 'Neue Haas Grotesk Text Pro', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+  }
+
+  h1, h2, h3, h4, .font-display {
+    font-family: 'Neue Haas Grotesk Text Pro', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    letter-spacing: -0.05em; /* tightly tracked for the aesthetic */
+  }
+}
+
+/* Signature Outfit.hellohello.is Clip-Path Reveal Animation */
+.outfit-reveal-back {
+  clip-path: polygon(0% 0%, 0% 0%, 0% 100%, 0% 100%);
+  filter: brightness(300%) contrast(140%);
+  transform: scale(1.2);
+  transition: clip-path 0.6s cubic-bezier(0.87, 0, 0.13, 1),
+              transform 0.6s cubic-bezier(0.87, 0, 0.13, 1),
+              filter 0.6s cubic-bezier(0.87, 0, 0.13, 1);
+}
+
+.group:hover .outfit-reveal-back {
+  clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%);
+  filter: brightness(100%) contrast(100%);
+  transform: scale(1);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 5px;
+}
+::-webkit-scrollbar-track {
+  background: #ede4dd;
+}
+::-webkit-scrollbar-thumb {
+  background: #000000;
+  border-radius: 9999px;
+}
+
+/* Utility Animations */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
