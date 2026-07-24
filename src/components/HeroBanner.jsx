@@ -5,15 +5,15 @@ export default function HeroBanner() {
     <section className="w-full bg-[#ede4dd] text-[#ff0001] flex flex-col justify-between pt-12 md:pt-24">
       <div className="w-full flex flex-col">
         {/* Giant Text */}
-        <div className="w-full px-6 flex items-end leading-[0.8] pb-4">
-          <h1 className="font-bold tracking-tighter text-[16vw] md:text-[12vw] uppercase break-words">
+        <div className="w-full px-4 md:px-6 flex items-end leading-[0.8] pb-4">
+          <h1 className="font-bold tracking-tighter text-[12vw] uppercase break-words md:break-normal">
             DINESH READYMADE<br />STORE.
           </h1>
         </div>
 
         {/* Footer info bar */}
-        <div className="w-full border-t border-[#ff0001] px-6 py-6 text-xs md:text-sm font-medium tracking-tight">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 md:gap-4 uppercase">
+        <div className="w-full border-t border-[#ff0001] px-4 md:px-6 py-4 md:py-6 text-xs md:text-sm font-medium tracking-tight">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 md:gap-4 uppercase">
             <div>
               <p>Dinesh Readymade Store</p>
             </div>

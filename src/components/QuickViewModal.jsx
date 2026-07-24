@@ -50,11 +50,11 @@ export default function QuickViewModal({
         </button>
 
         {/* Left: Product Images Gallery */}
-        <div className="md:w-1/2 p-6 bg-cream-100/50 flex flex-col justify-between">
+        <div className="md:w-1/2 p-4 md:p-6 bg-cream-100/50 flex flex-col justify-between pt-14 md:pt-6">
           <div className="relative aspect-[3/4] w-full rounded-xl overflow-hidden bg-cream-200 border border-charcoal-900/10 mb-4">
             <img src={activeImage} alt={product.name} className="w-full h-full object-cover" />
             {product.discount && (
-              <span className="absolute top-3 left-3 bg-maroon-700 text-white text-xs font-bold px-2.5 py-1 rounded">
+              <span className="absolute top-3 left-3 bg-maroon-700 text-white text-xs font-bold px-2.5 py-1 rounded z-20">
                 {product.discount}
               </span>
             )}
@@ -79,7 +79,7 @@ export default function QuickViewModal({
         </div>
 
         {/* Right: Product Details & Purchase Form */}
-        <div className="md:w-1/2 p-6 flex flex-col justify-between space-y-5">
+        <div className="md:w-1/2 p-4 md:p-6 flex flex-col justify-between space-y-5">
           <div>
             <div className="flex items-center justify-between text-xs text-charcoal-900/60 mb-2">
               <span className="uppercase font-bold tracking-widest text-maroon-700">{product.categoryName || product.category}</span>

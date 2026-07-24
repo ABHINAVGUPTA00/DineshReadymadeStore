@@ -59,9 +59,9 @@ export default function ProductCard({
       </div>
 
       {/* Category Tag (Red Dot + Category Name) */}
-      <div className="mt-1 flex items-center gap-1.5 text-[10px] md:text-xs uppercase tracking-wider text-[#ff0001]">
+      <div className="mt-1 flex items-center gap-1.5 text-[9px] md:text-xs uppercase tracking-wider text-[#ff0001]">
         <div className="h-1.5 w-1.5 rounded-full bg-[#ff0001]" />
-        <span>APPAREL</span>
+        <span>{product.categoryName || product.category || 'APPAREL'}</span>
       </div>
       
     </motion.div>

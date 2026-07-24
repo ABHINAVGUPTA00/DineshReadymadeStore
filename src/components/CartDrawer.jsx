@@ -23,12 +23,12 @@ export default function CartDrawer({
           className="fixed inset-0 z-[99999] bg-[#ede4dd] flex flex-col justify-between overflow-hidden"
         >
           {/* Top Navbar / Header area of the Bag overlay */}
-          <div className="w-full px-6 py-6 flex justify-between items-center text-[#ff0001] font-medium text-[18px] md:text-[22px] tracking-tight relative z-20">
+          <div className="w-full px-4 md:px-6 py-4 md:py-6 flex justify-between items-center text-[#ff0001] font-medium text-[15px] md:text-[22px] tracking-tight relative z-20">
             <div className="font-bold flex items-center">
               <span>++</span>
             </div>
             
-            <div className="flex items-center gap-6 md:gap-12">
+            <div className="flex items-center gap-4 md:gap-12">
               <button onClick={onClose} className="hover:opacity-70 transition-opacity">
                 Shop
               </button>
@@ -57,7 +57,7 @@ export default function CartDrawer({
               </h1>
             </div>
           ) : (
-            <div className="flex-1 flex flex-col w-full h-full px-6 pt-12 pb-24 overflow-y-auto relative z-20">
+            <div className="flex-1 flex flex-col w-full h-full px-4 md:px-6 pt-8 md:pt-12 pb-24 overflow-y-auto relative z-20">
               <h1 className="font-bold tracking-tighter text-[10vw] md:text-[8vw] leading-[0.8] text-[#ff0001] uppercase mb-12">
                 YOUR BAG
               </h1>
@@ -97,7 +97,7 @@ export default function CartDrawer({
               </div>
 
               {/* Checkout Footer */}
-              <div className="max-w-4xl w-full mt-12 pt-6 border-t-2 border-[#ff0001] flex justify-between items-center text-[#ff0001]">
+              <div className="max-w-4xl w-full mt-8 md:mt-12 pt-6 border-t-2 border-[#ff0001] flex flex-col sm:flex-row justify-between items-center gap-4 sm:gap-0 text-[#ff0001]">
                 <div className="text-2xl md:text-4xl font-bold tracking-tight">
                   Total: ₹{subtotal.toLocaleString('en-IN')}
                 </div>

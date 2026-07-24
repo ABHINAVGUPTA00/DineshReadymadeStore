@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { X, CheckCircle, CreditCard, Smartphone, Truck, MapPin, Printer, ArrowRight, Star } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { saveOrder, saveRating } from '../utils/db';
@@ -14,22 +15,23 @@ export default function CheckoutModal({
 
   const [step, setStep] = useState('shipping'); // 'shipping' | 'payment' | 'confirmation' | 'rating'
   const [formData, setFormData] = useState({
-    fullName: 'Rajesh Kumar',
-    phone: '9876543210',
-    email: 'rajesh@example.com',
-    address: '102 Royal Residency, Main Market',
-    city: 'Jaipur',
-    state: 'Rajasthan',
-    pincode: '302001'
+    fullName: '',
+    phone: '',
+    email: '',
+    address: '',
+    city: '',
+    state: '',
+    pincode: ''
   });
 
   const [paymentMethod, setPaymentMethod] = useState('upi'); // 'upi' | 'card' | 'cod'
-  const [upiId, setUpiId] = useState('rajesh@upi');
+  const [upiId, setUpiId] = useState('');
   const [orderId, setOrderId] = useState('');
   
   // Rating state
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState('');
+  const [ratingMessage, setRatingMessage] = useState('Awesome! Thanks for the love! ❤️');
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -55,6 +57,20 @@ export default function CheckoutModal({
   const handleSubmitRating = () => {
     saveRating(orderId, rating, comment);
     onClose();
+  };
+
+  const handleRatingClick = (starValue) => {
+    setRating(starValue);
+    if (starValue >= 4) {
+      setRatingMessage('Awesome! Thanks for the love! ❤️');
+      try {
+        confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 }, colors: ['#ff0001', '#ede4dd', '#000000'] });
+      } catch (err) {}
+    } else if (starValue === 3) {
+      setRatingMessage('Thanks for the feedback! We are constantly improving.');
+    } else {
+      setRatingMessage('We are so sorry! We will do better next time 🥺');
+    }
   };
 
   return (
@@ -177,7 +193,6 @@ export default function CheckoutModal({
             {/* Payment Method Cards */}
             <div className="space-y-3">
               <label
-                onClick={() => setPaymentMethod('upi')}
                 className={`flex items-center justify-between p-4 rounded-xl border-2 cursor-pointer transition-all ${
                   paymentMethod === 'upi' ? 'bg-white border-[#ff0001]' : 'bg-white/50 border-black/10 hover:border-black/30'
                 }`}
@@ -189,7 +204,7 @@ export default function CheckoutModal({
                     <span className="text-xs text-black/60 font-semibold">Google Pay, PhonePe, Paytm</span>
                   </div>
                 </div>
-                <input type="radio" name="payment" checked={paymentMethod === 'upi'} readOnly />
+                <input type="radio" name="payment" value="upi" checked={paymentMethod === 'upi'} onChange={(e) => setPaymentMethod(e.target.value)} />
               </label>
 
               {paymentMethod === 'upi' && (
@@ -206,7 +221,6 @@ export default function CheckoutModal({
               )}
 
               <label
-                onClick={() => setPaymentMethod('card')}
                 className={`flex items-center justify-between p-4 rounded-xl border-2 cursor-pointer transition-all ${
                   paymentMethod === 'card' ? 'bg-white border-[#ff0001]' : 'bg-white/50 border-black/10 hover:border-black/30'
                 }`}
@@ -218,11 +232,10 @@ export default function CheckoutModal({
                     <span className="text-xs text-black/60 font-semibold">Visa, Mastercard, RuPay</span>
                   </div>
                 </div>
-                <input type="radio" name="payment" checked={paymentMethod === 'card'} readOnly />
+                <input type="radio" name="payment" value="card" checked={paymentMethod === 'card'} onChange={(e) => setPaymentMethod(e.target.value)} />
               </label>
 
               <label
-                onClick={() => setPaymentMethod('cod')}
                 className={`flex items-center justify-between p-4 rounded-xl border-2 cursor-pointer transition-all ${
                   paymentMethod === 'cod' ? 'bg-white border-[#ff0001]' : 'bg-white/50 border-black/10 hover:border-black/30'
                 }`}
@@ -234,7 +247,7 @@ export default function CheckoutModal({
                     <span className="text-xs text-black/60 font-semibold">Pay cash/UPI at doorstep</span>
                   </div>
                 </div>
-                <input type="radio" name="payment" checked={paymentMethod === 'cod'} readOnly />
+                <input type="radio" name="payment" value="cod" checked={paymentMethod === 'cod'} onChange={(e) => setPaymentMethod(e.target.value)} />
               </label>
             </div>
 
@@ -290,17 +303,35 @@ export default function CheckoutModal({
         {/* STEP 4: Rating Flow */}
         {step === 'rating' && (
           <div className="text-center space-y-6 py-8">
-            <div className="flex justify-center gap-2 mb-8">
+            <div className="flex justify-center gap-3 mb-4">
               {[1, 2, 3, 4, 5].map((star) => (
-                <button 
+                <motion.button 
                   key={star} 
-                  onClick={() => setRating(star)}
-                  className="hover:scale-110 transition-transform"
+                  whileHover={{ scale: 1.2, rotate: [0, -10, 10, 0] }}
+                  whileTap={{ scale: 0.8 }}
+                  onClick={() => handleRatingClick(star)}
+                  className={`transition-all duration-300 ${rating >= star ? 'scale-110 drop-shadow-[0_8px_8px_rgba(250,204,21,0.6)]' : 'scale-100 opacity-50 grayscale'}`}
                 >
-                  <Star className={`w-12 h-12 ${rating >= star ? 'text-amber-400 fill-amber-400' : 'text-black/20'}`} />
-                </button>
+                  <Star 
+                    className={`w-14 h-14 ${rating >= star ? 'text-yellow-400 fill-yellow-400' : 'text-black/30 fill-black/10'}`} 
+                    strokeWidth={1.5}
+                  />
+                </motion.button>
               ))}
             </div>
+
+            <AnimatePresence>
+              {ratingMessage && (
+                <motion.div 
+                  initial={{ opacity: 0, y: -10, scale: 0.9 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  key={ratingMessage}
+                  className={`text-sm font-bold px-4 py-2 rounded-xl inline-block mb-6 shadow-md ${rating >= 4 ? 'bg-emerald-100 text-emerald-700 border-2 border-emerald-200' : rating <= 2 ? 'bg-rose-100 text-rose-700 border-2 border-rose-200' : 'bg-blue-100 text-blue-700 border-2 border-blue-200'}`}
+                >
+                  {ratingMessage}
+                </motion.div>
+              )}
+            </AnimatePresence>
 
             <div className="text-left max-w-md mx-auto w-full space-y-4">
               <label className="block font-bold text-sm uppercase tracking-widest text-black">Leave a Review (Optional)</label>

@@ -13,7 +13,7 @@ export default function ProductGrid({
     : products.filter(p => p.category === activeCategory);
 
   return (
-    <section id="catalog-section" className="w-full px-6 py-12 md:py-24 bg-[#ede4dd]">
+    <section id="catalog-section" className="w-full px-4 md:px-6 py-8 md:py-24 bg-[#ede4dd]">
       
       {/* Category Filters */}
       <div className="flex flex-wrap gap-4 mb-12 border-b-2 border-black/10 pb-4">
@@ -32,7 +32,7 @@ export default function ProductGrid({
 
       {/* Responsive Grid matching outfit.hellohello.is */}
       {filteredProducts.length > 0 ? (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-x-6 md:gap-y-16">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 md:gap-x-6 md:gap-y-16">
           {filteredProducts.map((product) => (
             <ProductCard
               key={product.id}
@@ -50,8 +50,8 @@ export default function ProductGrid({
       )}
 
       {/* Slogan added at the very end of the catalog section */}
-      <div className="pt-24 md:pt-40 pb-12">
-        <h1 className="text-5xl md:text-8xl font-bold tracking-tighter leading-[0.9] text-[#ff0001]">
+      <div className="pt-16 md:pt-40 pb-12">
+        <h1 className="text-4xl md:text-8xl font-bold tracking-tighter leading-[0.9] text-[#ff0001]">
           Made to be worn.<br />
           Or judged. Or both.
         </h1>

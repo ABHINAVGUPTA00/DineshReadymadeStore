@@ -48,7 +48,7 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
             initial={{ opacity: 0, scale: 0.9, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 20 }}
-            className="bg-cream-50 rounded-3xl p-8 max-w-md w-full relative shadow-2xl border border-charcoal-900/10"
+            className="bg-cream-50 rounded-3xl p-6 md:p-8 max-w-md w-full relative shadow-2xl border border-charcoal-900/10"
           >
             <button
               onClick={onClose}

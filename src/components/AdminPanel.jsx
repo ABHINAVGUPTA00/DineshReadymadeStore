@@ -3,7 +3,7 @@ import { X, Plus, Package, ShoppingBag, Check, Lock, Image as ImageIcon, Ruler, 
 import { motion, AnimatePresence } from 'framer-motion';
 import { QRCodeSVG } from 'qrcode.react';
 import html2pdf from 'html2pdf.js';
-import { getOrders, saveCustomProduct, getCustomProducts, getUsers, deleteCustomProduct, toggleCustomProductStock } from '../utils/db';
+import { getOrders, deleteOrder, saveCustomProduct, getCustomProducts, getUsers, deleteCustomProduct, toggleCustomProductStock } from '../utils/db';
 import { CATEGORIES } from '../data/products';
 
 const AVAILABLE_SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
@@ -23,6 +23,8 @@ export default function AdminPanel({ isOpen, onClose }) {
     category: 'mens',
     price: '',
     fabric: '',
+    description: '',
+    colorNames: '',
     imagesBase64: [],
     sizes: ['M', 'L']
   });
@@ -87,12 +89,13 @@ export default function AdminPanel({ isOpen, onClose }) {
       fabric: productForm.fabric,
       images: productForm.imagesBase64.length > 0 ? productForm.imagesBase64 : ['https://images.unsplash.com/photo-1594938298603-c8148c4dae35?auto=format&fit=crop&w=800&q=80'],
       sizes: productForm.sizes.length > 0 ? productForm.sizes : ['Free Size'],
-      description: `Premium ${productForm.fabric} material. Designed for absolute comfort and style.`,
+      description: productForm.description,
+      colorNames: productForm.colorNames,
     };
     saveCustomProduct(newProduct);
     setCustomProducts(getCustomProducts());
     setSuccessMsg('Product Published Successfully!');
-    setProductForm({ name: '', category: 'mens', price: '', fabric: '', imagesBase64: [], sizes: ['M', 'L'] });
+    setProductForm({ name: '', category: 'mens', price: '', fabric: '', description: '', colorNames: '', imagesBase64: [], sizes: ['M', 'L'] });
     setTimeout(() => setSuccessMsg(''), 3000);
   };
 
@@ -372,6 +375,19 @@ export default function AdminPanel({ isOpen, onClose }) {
                               <option value="Shipped">Shipped</option>
                               <option value="Delivered">Delivered</option>
                             </select>
+                            <button 
+                              onClick={() => {
+                                if(window.confirm('Are you sure you want to delete this order?')) {
+                                  deleteOrder(selectedOrder.id);
+                                  setOrders(getOrders());
+                                  setSelectedOrder(null);
+                                }
+                              }}
+                              className="ml-4 p-2 bg-red-100 text-red-700 hover:bg-red-200 rounded-lg transition-colors flex items-center gap-1 text-xs font-bold"
+                              title="Delete Order"
+                            >
+                              <Trash2 className="w-4 h-4" /> Delete
+                            </button>
                           </div>
                         </div>
                       </div>
@@ -484,6 +500,16 @@ export default function AdminPanel({ isOpen, onClose }) {
                         <div>
                           <label className="block text-xs font-black text-black/70 mb-2 uppercase tracking-wider">Material Used</label>
                           <input type="text" required value={productForm.fabric} onChange={e => setProductForm({...productForm, fabric: e.target.value})} placeholder="e.g. 100% Pure Cotton" className="w-full border-4 border-black/10 rounded-2xl p-3 font-bold focus:outline-none focus:border-[#ff0001] bg-[#ede4dd]" />
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-black text-black/70 mb-2 uppercase tracking-wider">Product Description</label>
+                          <textarea rows="3" required value={productForm.description} onChange={e => setProductForm({...productForm, description: e.target.value})} placeholder="Write a multi-line description..." className="w-full border-4 border-black/10 rounded-2xl p-3 font-bold focus:outline-none focus:border-[#ff0001] bg-[#ede4dd]" />
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-black text-black/70 mb-2 uppercase tracking-wider">Color Options (Comma Separated)</label>
+                          <input type="text" value={productForm.colorNames} onChange={e => setProductForm({...productForm, colorNames: e.target.value})} placeholder="e.g. Red, Blue, Black" className="w-full border-4 border-black/10 rounded-2xl p-3 font-bold focus:outline-none focus:border-[#ff0001] bg-[#ede4dd]" />
                         </div>
 
                         <div>

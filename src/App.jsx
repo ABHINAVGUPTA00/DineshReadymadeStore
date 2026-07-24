@@ -12,6 +12,7 @@ import AuthModal from './components/AuthModal';
 import UserDashboard from './components/UserDashboard';
 import { PRODUCTS } from './data/products';
 import { getCustomProducts, getCurrentUser } from './utils/db';
+import PageTransition from './components/PageTransition';
 
 export default function App() {
   const [showPreloader, setShowPreloader] = useState(true);
@@ -19,6 +20,20 @@ export default function App() {
   const [currentUser, setCurrentUser] = useState(getCurrentUser());
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [isDashboardOpen, setIsDashboardOpen] = useState(false);
+  
+  // Page Transition
+  const [transitionActive, setTransitionActive] = useState(false);
+  const [transitionAction, setTransitionAction] = useState(null);
+
+  const triggerTransition = (action) => {
+    setTransitionAction(() => action);
+    setTransitionActive(true);
+  };
+
+  const handleTransitionMidpoint = () => {
+    if (transitionAction) transitionAction();
+    setTimeout(() => setTransitionActive(false), 400);
+  };
   
   // Cart States
   const [cartItems, setCartItems] = useState([]);
@@ -89,14 +104,27 @@ export default function App() {
       {/* Cinematic Intro Preloader */}
       {showPreloader && <Preloader onComplete={() => setShowPreloader(false)} />}
 
+      <PageTransition 
+        isActive={transitionActive} 
+        onMidpoint={handleTransitionMidpoint} 
+      />
+
       {/* Main Navigation */}
       <Header
         cartCount={cartItems.reduce((acc, item) => acc + item.quantity, 0)}
-        onOpenCart={() => setIsCartDrawerOpen(true)}
+        onOpenCart={() => triggerTransition(() => setIsCartDrawerOpen(true))}
         onScrollToOutfitBuilder={scrollToOutfitBuilder}
         currentUser={currentUser}
         onOpenAuth={() => setIsAuthOpen(true)}
         onOpenDashboard={() => setIsDashboardOpen(true)}
+        onShopClick={() => triggerTransition(() => {
+          const shopSection = document.getElementById('catalog-section');
+          if (shopSection) {
+            shopSection.scrollIntoView({ behavior: 'instant' });
+          } else {
+            window.scrollTo({ top: window.innerHeight, behavior: 'instant' });
+          }
+        })}
       />
 
       {/* Main Body Content */}

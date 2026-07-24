@@ -29,6 +29,12 @@ export const saveOrder = (order) => {
   return newOrder;
 };
 
+export const deleteOrder = (id) => {
+  const orders = getOrders();
+  const updatedOrders = orders.filter(o => o.id !== id);
+  localStorage.setItem(KEYS.ORDERS, JSON.stringify(updatedOrders));
+};
+
 export const getCustomProducts = () => {
   const data = localStorage.getItem(KEYS.PRODUCTS);
   if (!data) {
@@ -40,12 +46,22 @@ export const getCustomProducts = () => {
 
 export const saveCustomProduct = (product) => {
   const products = getCustomProducts();
+
+  let parsedColors = [{ name: 'Default', hex: '#000' }];
+  if (product.colorNames && product.colorNames.trim() !== '') {
+    parsedColors = product.colorNames.split(',').map(c => ({
+      name: c.trim(),
+      hex: '#333' // Default hex for dynamically added colors
+    })).filter(c => c.name !== '');
+  }
+
   const newProduct = { 
     ...product, 
     id: 'drs-custom-' + Date.now(), 
     images: product.images && product.images.length > 0 ? product.images : ['https://images.unsplash.com/photo-1594938298603-c8148c4dae35?auto=format&fit=crop&w=800&q=80'],
     price: Number(product.price),
-    colors: [{ name: 'Default', hex: '#000' }],
+    colors: parsedColors,
+    description: product.description || `Premium ${product.fabric} material. Designed for absolute comfort and style.`,
     sizes: product.sizes && product.sizes.length > 0 ? product.sizes : ['Free Size'],
     isOutOfStock: false
   };
