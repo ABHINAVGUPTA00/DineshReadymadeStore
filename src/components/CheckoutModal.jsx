@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, CheckCircle, CreditCard, Smartphone, Truck, MapPin, Printer, ArrowRight, Star } from 'lucide-react';
 import confetti from 'canvas-confetti';
-import { saveOrder, saveRating } from '../utils/db';
+import { saveOrder, saveRating } from '../services/database';
 
 export default function CheckoutModal({
   isOpen,
@@ -97,7 +97,7 @@ export default function CheckoutModal({
 
         {/* STEP 1: Shipping Address Form */}
         {step === 'shipping' && (
-          <form onSubmit={() => setStep('payment')} className="space-y-4">
+          <form onSubmit={(e) => { e.preventDefault(); setStep('payment'); }} className="space-y-4">
             <h3 className="font-display font-bold text-sm text-black uppercase flex items-center gap-1.5 tracking-wider">
               <MapPin className="w-4 h-4 text-[#ff0001]" /> Delivery Address
             </h3>

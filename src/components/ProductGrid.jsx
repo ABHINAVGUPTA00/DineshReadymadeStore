@@ -16,16 +16,19 @@ export default function ProductGrid({
     <section id="catalog-section" className="w-full px-4 md:px-6 py-8 md:py-24 bg-[#ede4dd]">
       
       {/* Category Filters */}
-      <div className="flex flex-wrap gap-4 mb-12 border-b-2 border-black/10 pb-4">
+      <div className="flex overflow-x-auto no-scrollbar gap-6 md:gap-8 mb-8 md:mb-12 border-b-2 border-black/10 pb-4 snap-x relative">
         {CATEGORIES.map(category => (
           <button
             key={category.id}
             onClick={() => setActiveCategory(category.id)}
-            className={`font-bold tracking-widest uppercase text-sm transition-colors ${
+            className={`font-bold tracking-widest uppercase text-xs md:text-sm transition-all duration-300 whitespace-nowrap snap-start relative ${
               activeCategory === category.id ? 'text-[#ff0001]' : 'text-black/40 hover:text-black'
             }`}
           >
             {category.name}
+            {activeCategory === category.id && (
+              <span className="absolute -bottom-[18px] left-0 w-full h-0.5 bg-[#ff0001] shadow-[0_0_8px_rgba(255,0,1,0.5)]"></span>
+            )}
           </button>
         ))}
       </div>

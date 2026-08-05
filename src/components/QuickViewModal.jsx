@@ -20,6 +20,40 @@ export default function QuickViewModal({
   const [isAdded, setIsAdded] = useState(false);
   const [showSizeChart, setShowSizeChart] = useState(false);
 
+  // Mobile swipe handling
+  const [touchStart, setTouchStart] = useState(null);
+  const [touchEnd, setTouchEnd] = useState(null);
+  const minSwipeDistance = 50;
+
+  const handleTouchStart = (e) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchMove = (e) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+    
+    if ((isLeftSwipe || isRightSwipe) && product.images && product.images.length > 1) {
+      const currentIndex = product.images.indexOf(activeImage);
+      if (isLeftSwipe) {
+        // Swipe left means go to next image
+        const nextIndex = (currentIndex + 1) % product.images.length;
+        setActiveImage(product.images[nextIndex]);
+      } else {
+        // Swipe right means go to previous image
+        const prevIndex = currentIndex === 0 ? product.images.length - 1 : currentIndex - 1;
+        setActiveImage(product.images[prevIndex]);
+      }
+    }
+  };
+
   const handleCheckPincode = (e) => {
     e.preventDefault();
     if (pincode.length === 6) {
@@ -51,7 +85,12 @@ export default function QuickViewModal({
 
         {/* Left: Product Images Gallery */}
         <div className="md:w-1/2 p-4 md:p-6 bg-cream-100/50 flex flex-col justify-between pt-14 md:pt-6">
-          <div className="relative aspect-[3/4] w-full rounded-xl overflow-hidden bg-cream-200 border border-charcoal-900/10 mb-4">
+          <div 
+            className="relative aspect-[3/4] w-full rounded-xl overflow-hidden bg-cream-200 border border-charcoal-900/10 mb-4 select-none touch-pan-y"
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+          >
             <img src={activeImage} alt={product.name} className="w-full h-full object-cover" />
             {product.discount && (
               <span className="absolute top-3 left-3 bg-maroon-700 text-white text-xs font-bold px-2.5 py-1 rounded z-20">

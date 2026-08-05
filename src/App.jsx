@@ -1,85 +1,39 @@
 import React, { useState } from 'react';
+import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
+import { AnimatePresence } from 'framer-motion';
+import { Toaster } from 'react-hot-toast';
+
 import Preloader from './components/Preloader';
 import CustomCursor from './components/CustomCursor';
 import Header from './components/Header';
-import HeroBanner from './components/HeroBanner';
-import ProductGrid from './components/ProductGrid';
-import QuickViewModal from './components/QuickViewModal';
 import CartDrawer from './components/CartDrawer';
-import CheckoutModal from './components/CheckoutModal';
-import AdminPanel from './components/AdminPanel';
+import WishlistDrawer from './components/WishlistDrawer';
 import AuthModal from './components/AuthModal';
-import UserDashboard from './components/UserDashboard';
-import { PRODUCTS } from './data/products';
-import { getCustomProducts, getCurrentUser } from './utils/db';
+import CheckoutModal from './components/CheckoutModal';
+
+import Home from './pages/Home';
+import AdminDashboard from './pages/Admin/AdminDashboard';
+import Profile from './pages/User/Profile';
+
+import { useCart } from './context/CartContext';
+import { useAuth } from './context/AuthContext';
+import { useWishlist } from './context/WishlistContext';
 import PageTransition from './components/PageTransition';
 
 export default function App() {
   const [showPreloader, setShowPreloader] = useState(true);
-  const [isAdminOpen, setIsAdminOpen] = useState(false);
-  const [currentUser, setCurrentUser] = useState(getCurrentUser());
   const [isAuthOpen, setIsAuthOpen] = useState(false);
-  const [isDashboardOpen, setIsDashboardOpen] = useState(false);
-  
-  // Page Transition
-  const [transitionActive, setTransitionActive] = useState(false);
-  const [transitionAction, setTransitionAction] = useState(null);
-
-  const triggerTransition = (action) => {
-    setTransitionAction(() => action);
-    setTransitionActive(true);
-  };
-
-  const handleTransitionMidpoint = () => {
-    if (transitionAction) transitionAction();
-    setTimeout(() => setTransitionActive(false), 400);
-  };
-  
-  // Cart States
-  const [cartItems, setCartItems] = useState([]);
-  
-  // Modals & Drawers
-  const [quickViewProduct, setQuickViewProduct] = useState(null);
   const [isCartDrawerOpen, setIsCartDrawerOpen] = useState(false);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
-  const [checkoutTotals, setCheckoutTotals] = useState({ total: 3499, subtotal: 3499, promoDiscount: 0, shippingFee: 0 });
-
-  // Add Item to Cart
-  const handleAddToCart = (product, size, color, qty = 1) => {
-    setCartItems((prev) => {
-      const existingIdx = prev.findIndex(
-        (item) => item.id === product.id && item.selectedSize === size && item.selectedColor?.name === color?.name
-      );
-      if (existingIdx > -1) {
-        const copy = [...prev];
-        copy[existingIdx].quantity += qty;
-        return copy;
-      } else {
-        return [
-          ...prev,
-          {
-            ...product,
-            selectedSize: size || product.sizes[0],
-            selectedColor: color || product.colors[0],
-            quantity: qty
-          }
-        ];
-      }
-    });
-  };
-
-  // Cart Handlers
-  const handleUpdateQuantity = (idx, newQty) => {
-    setCartItems((prev) => {
-      const copy = [...prev];
-      copy[idx].quantity = newQty;
-      return copy;
-    });
-  };
-
-  const handleRemoveItem = (idx) => {
-    setCartItems((prev) => prev.filter((_, i) => i !== idx));
-  };
+  const [isWishlistOpen, setIsWishlistOpen] = useState(false);
+  const [checkoutTotals, setCheckoutTotals] = useState({ total: 0, subtotal: 0, promoDiscount: 0, shippingFee: 0 });
+  
+  const { cartItems, handleUpdateQuantity, handleRemoveItem, clearCart } = useCart();
+  const { currentUser, login, logout } = useAuth();
+  const { wishlist, toggleWishlist } = useWishlist();
+  
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const handleProceedToCheckout = (total, subtotal, promoDiscount, shippingFee) => {
     if (!currentUser) {
@@ -88,113 +42,74 @@ export default function App() {
     }
     setCheckoutTotals({ total, subtotal, promoDiscount, shippingFee });
     setIsCheckoutOpen(true);
-  };
-
-  // Scroll Helpers
-  const scrollToOutfitBuilder = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setIsCartDrawerOpen(false); // Close cart drawer when checking out
   };
 
   return (
-    <div className="min-h-screen bg-[#ede4dd] text-black flex flex-col justify-between selection:bg-[#ff0001] selection:text-white">
-      
-      {/* Interactive Custom Magnetic Cursor */}
+    <div className="min-h-[100dvh] bg-[#ede4dd] text-black flex flex-col justify-between selection:bg-[#ff0001] selection:text-white">
       <CustomCursor />
+      <Toaster position="bottom-right" toastOptions={{ className: 'font-bold uppercase tracking-widest text-xs border-2 border-black rounded-xl' }} />
 
-      {/* Cinematic Intro Preloader */}
       {showPreloader && <Preloader onComplete={() => setShowPreloader(false)} />}
 
-      <PageTransition 
-        isActive={transitionActive} 
-        onMidpoint={handleTransitionMidpoint} 
-      />
-
-      {/* Main Navigation */}
       <Header
-        cartCount={cartItems.reduce((acc, item) => acc + item.quantity, 0)}
-        onOpenCart={() => triggerTransition(() => setIsCartDrawerOpen(true))}
-        onScrollToOutfitBuilder={scrollToOutfitBuilder}
-        currentUser={currentUser}
-        onOpenAuth={() => setIsAuthOpen(true)}
-        onOpenDashboard={() => setIsDashboardOpen(true)}
-        onShopClick={() => triggerTransition(() => {
-          const shopSection = document.getElementById('catalog-section');
-          if (shopSection) {
-            shopSection.scrollIntoView({ behavior: 'instant' });
-          } else {
-            window.scrollTo({ top: window.innerHeight, behavior: 'instant' });
-          }
-        })}
-      />
+            cartCount={cartItems.reduce((acc, item) => acc + item.quantity, 0)}
+            onOpenCart={() => setIsCartDrawerOpen(true)}
+            onScrollToOutfitBuilder={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            currentUser={currentUser}
+            onOpenAuth={() => setIsAuthOpen(true)}
+            onOpenDashboard={() => navigate('/profile')}
+            onShopClick={() => {
+              navigate('/');
+              setTimeout(() => {
+                document.getElementById('catalog-section')?.scrollIntoView({ behavior: 'smooth' });
+              }, 100);
+            }}
+            onOpenWishlist={() => setIsWishlistOpen(true)}
+          />
 
-      {/* Main Body Content */}
-      <main className="flex-grow">
-        
-        {/* Editorial Hero Banner */}
-        <HeroBanner />
+          <AnimatePresence mode="wait">
+            <Routes location={location} key={location.pathname}>
+              <Route path="/" element={<PageTransition><Home onOpenAuth={() => setIsAuthOpen(true)} onOpenCheckout={handleProceedToCheckout} /></PageTransition>} />
+              <Route path="/admin" element={<PageTransition><AdminDashboard isOpen={true} onClose={() => navigate('/')} /></PageTransition>} />
+              <Route path="/profile" element={<PageTransition><Profile isOpen={true} onClose={() => navigate('/')} user={currentUser} onLogout={() => { logout(); navigate('/'); }} /></PageTransition>} />
+            </Routes>
+          </AnimatePresence>
 
-        {/* Product Catalog Grid */}
-        <ProductGrid
-          products={getCustomProducts()}
-          onQuickView={(p) => setQuickViewProduct(p)}
-        />
+          <CartDrawer
+            isOpen={isCartDrawerOpen}
+            onClose={() => setIsCartDrawerOpen(false)}
+            cartItems={cartItems}
+            onUpdateQuantity={handleUpdateQuantity}
+            onRemoveItem={handleRemoveItem}
+            onProceedToCheckout={handleProceedToCheckout}
+          />
 
-      </main>
+          <WishlistDrawer
+            isOpen={isWishlistOpen}
+            onClose={() => setIsWishlistOpen(false)}
+            wishlist={wishlist}
+            onRemoveItem={toggleWishlist}
+          />
 
-      {/* Modals & Overlays */}
-      {quickViewProduct && (
-        <QuickViewModal
-          product={quickViewProduct}
-          onClose={() => setQuickViewProduct(null)}
-          onAddToCart={handleAddToCart}
-          onBuyNow={() => {
-            const sub = quickViewProduct.price;
-            handleProceedToCheckout(sub, sub, 0, 0);
-          }}
-          onToggleWishlist={() => {}}
-          isWishlisted={false}
-        />
-      )}
+          <AuthModal 
+            isOpen={isAuthOpen} 
+            onClose={() => setIsAuthOpen(false)} 
+            onLoginSuccess={login} 
+          />
 
-      <CartDrawer
-        isOpen={isCartDrawerOpen}
-        onClose={() => setIsCartDrawerOpen(false)}
-        cartItems={cartItems}
-        onUpdateQuantity={handleUpdateQuantity}
-        onRemoveItem={handleRemoveItem}
-        onProceedToCheckout={handleProceedToCheckout}
-      />
+          <CheckoutModal
+            isOpen={isCheckoutOpen}
+            onClose={() => setIsCheckoutOpen(false)}
+            cartItems={cartItems}
+            orderTotals={checkoutTotals}
+            onClearCart={clearCart}
+          />
 
-      <CheckoutModal
-        isOpen={isCheckoutOpen}
-        onClose={() => setIsCheckoutOpen(false)}
-        cartItems={cartItems}
-        orderTotals={checkoutTotals}
-        onClearCart={() => setCartItems([])}
-      />
 
-      <AdminPanel isOpen={isAdminOpen} onClose={() => setIsAdminOpen(false)} />
-      
-      <AuthModal 
-        isOpen={isAuthOpen} 
-        onClose={() => setIsAuthOpen(false)} 
-        onLoginSuccess={(user) => {
-          setCurrentUser(user);
-        }} 
-      />
-
-      <UserDashboard 
-        isOpen={isDashboardOpen}
-        onClose={() => setIsDashboardOpen(false)}
-        user={currentUser}
-        onLogout={() => setCurrentUser(null)}
-      />
-
-      {/* Footer / Admin Entry */}
-      <div className="w-full text-center py-4 text-xs font-mono opacity-20 hover:opacity-100 transition-opacity">
-        <button onClick={() => setIsAdminOpen(true)}>Admin Login</button>
-      </div>
-
+          <div className="w-full text-center py-4 text-xs font-mono opacity-20 hover:opacity-100 transition-opacity">
+            <button onClick={() => navigate('/admin')}>Admin Login</button>
+          </div>
     </div>
   );
 }

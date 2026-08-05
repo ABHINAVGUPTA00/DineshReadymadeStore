@@ -1,40 +1,41 @@
-import React, { useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React from 'react';
+import { motion } from 'framer-motion';
 
-export default function PageTransition({ isActive, onMidpoint }) {
-  useEffect(() => {
-    if (isActive) {
-      // Trigger midpoint after the slide-in animation completes
-      const timer = setTimeout(() => {
-        if (onMidpoint) onMidpoint();
-      }, 700); 
-      return () => clearTimeout(timer);
-    }
-  }, [isActive, onMidpoint]);
+const pageVariants = {
+  initial: {
+    opacity: 0,
+    y: 20,
+    scale: 0.98,
+  },
+  in: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+  },
+  out: {
+    opacity: 0,
+    y: -20,
+    scale: 1.02,
+  }
+};
 
+const pageTransition = {
+  type: "tween",
+  ease: [0.22, 1, 0.36, 1],
+  duration: 0.5
+};
+
+export default function PageTransition({ children }) {
   return (
-    <AnimatePresence>
-      {isActive && (
-        <motion.div
-          initial={{ y: '100%' }}
-          animate={{ y: '0%' }}
-          exit={{ y: '-100%' }}
-          transition={{ duration: 0.6, ease: [0.76, 0, 0.24, 1] }}
-          className="fixed inset-0 z-[100] bg-[#ff0001] flex items-center justify-center pointer-events-none"
-        >
-          <motion.div
-             initial={{ opacity: 0, y: 20 }}
-             animate={{ opacity: 1, y: 0 }}
-             exit={{ opacity: 0, y: -20 }}
-             transition={{ delay: 0.3, duration: 0.4 }}
-             className="overflow-hidden"
-          >
-            <h1 className="text-white text-3xl md:text-5xl font-bold tracking-tighter text-center m-0">
-              DINESH READYMADESTORE.
-            </h1>
-          </motion.div>
-        </motion.div>
-      )}
-    </AnimatePresence>
+    <motion.div
+      initial="initial"
+      animate="in"
+      exit="out"
+      variants={pageVariants}
+      transition={pageTransition}
+      className="w-full"
+    >
+      {children}
+    </motion.div>
   );
 }

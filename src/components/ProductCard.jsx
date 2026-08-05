@@ -1,10 +1,15 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { Heart } from 'lucide-react';
+import { useWishlist } from '../context/WishlistContext';
 
 export default function ProductCard({
   product,
   onQuickView
 }) {
+  const { toggleWishlist, isInWishlist } = useWishlist();
+  const isWished = isInWishlist(product.id);
+
   const frontImage = product.images[0];
   const backImage = product.images[1] || product.images[0];
 
@@ -12,7 +17,8 @@ export default function ProductCard({
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
+      whileTap={{ scale: 0.97 }}
+      viewport={{ once: true, margin: "-50px" }}
       className="group block cursor-pointer select-none"
       onClick={() => onQuickView(product)}
     >
@@ -48,6 +54,19 @@ export default function ProductCard({
             Out of Stock
           </div>
         )}
+
+        {/* Wishlist Toggle Button */}
+        <motion.button 
+          whileTap={{ scale: 0.7 }}
+          whileHover={{ scale: 1.1 }}
+          onClick={(e) => {
+            e.stopPropagation();
+            toggleWishlist(product.id);
+          }}
+          className="absolute top-3 right-3 p-2 rounded-full bg-white/80 backdrop-blur hover:bg-white transition-colors z-20 shadow-sm"
+        >
+          <Heart className={`w-5 h-5 transition-colors ${isWished ? 'fill-[#ff0001] text-[#ff0001]' : 'text-black'}`} />
+        </motion.button>
       </div>
 
       {/* Item Title & Price Row */}

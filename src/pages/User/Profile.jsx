@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Package, LogOut, ExternalLink, Calendar, MapPin } from 'lucide-react';
-import { getUserOrders, logoutUser } from '../utils/db';
+import { getUserOrders, logoutUser } from '../../services/database';
 
 export default function UserDashboard({ isOpen, onClose, user, onLogout }) {
   const [orders, setOrders] = useState([]);

@@ -1,13 +1,36 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { X, Plus, Package, ShoppingBag, Check, Lock, Image as ImageIcon, Ruler, Printer, Download, Trash2, Ban, FileDown } from 'lucide-react';
+import { X, Plus, Package, ShoppingBag, Check, Lock, Image as ImageIcon, Ruler, Printer, Download, Trash2, Ban, FileDown, Palette, PlusCircle } from 'lucide-react';
+import { ChromePicker } from 'react-color';
 import { motion, AnimatePresence } from 'framer-motion';
 import { QRCodeSVG } from 'qrcode.react';
 import html2pdf from 'html2pdf.js';
-import { getOrders, deleteOrder, saveCustomProduct, getCustomProducts, getUsers, deleteCustomProduct, toggleCustomProductStock } from '../utils/db';
-import { CATEGORIES } from '../data/products';
+import { getOrders, deleteOrder, saveCustomProduct, getCustomProducts, getUsers, deleteCustomProduct, toggleCustomProductStock } from '../../services/database';
+import { CATEGORIES } from '../../data/products';
 
 const AVAILABLE_SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
 
+const PREDEFINED_COLORS = [
+  { name: 'Red', hex: '#ff0000' },
+  { name: 'Dark Red', hex: '#800000' },
+  { name: 'Yellow', hex: '#ffff00' },
+  { name: 'Olive', hex: '#808000' },
+  { name: 'Lime', hex: '#00ff00' },
+  { name: 'Green', hex: '#008000' },
+  { name: 'Aqua', hex: '#00ffff' },
+  { name: 'Teal', hex: '#008080' },
+  { name: 'Blue', hex: '#0000ff' },
+  { name: 'Navy', hex: '#000080' },
+  { name: 'Fuchsia', hex: '#ff00ff' },
+  { name: 'Purple', hex: '#800080' },
+  { name: 'White', hex: '#ffffff' },
+  { name: 'Silver', hex: '#c0c0c0' },
+  { name: 'Gray', hex: '#808080' },
+  { name: 'Black', hex: '#000000' },
+  { name: 'Orange', hex: '#ffa500' },
+  { name: 'Brown', hex: '#a52a2a' },
+  { name: 'Pink', hex: '#ffc0cb' },
+  { name: 'Gold', hex: '#ffd700' }
+];
 export default function AdminPanel({ isOpen, onClose }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loginForm, setLoginForm] = useState({ id: '', password: '' });
@@ -24,11 +47,15 @@ export default function AdminPanel({ isOpen, onClose }) {
     price: '',
     fabric: '',
     description: '',
-    colorNames: '',
+    colors: [],
     imagesBase64: [],
     sizes: ['M', 'L']
   });
   const [successMsg, setSuccessMsg] = useState('');
+  
+  // Custom Color Picker State
+  const [customColorHex, setCustomColorHex] = useState('#5823CD');
+  const [customColorName, setCustomColorName] = useState('');
   
   const [selectedOrder, setSelectedOrder] = useState(null);
 
@@ -61,6 +88,24 @@ export default function AdminPanel({ isOpen, onClose }) {
     });
   };
 
+  const handleColorToggle = (colorObj) => {
+    setProductForm(prev => {
+      const exists = prev.colors.find(c => c.name === colorObj.name || c.hex === colorObj.hex);
+      const newColors = exists 
+        ? prev.colors.filter(c => c.name !== colorObj.name && c.hex !== colorObj.hex)
+        : [...prev.colors, colorObj];
+      return { ...prev, colors: newColors };
+    });
+  };
+
+  const handleAddCustomColor = () => {
+    if (customColorName.trim() === '') {
+      alert("Please enter a name for this custom color (e.g. 'Deep Purple')");
+      return;
+    }
+    handleColorToggle({ name: customColorName, hex: customColorHex });
+    setCustomColorName('');
+  };
   const handleImageUpload = (e) => {
     const files = Array.from(e.target.files);
     Promise.all(
@@ -90,12 +135,12 @@ export default function AdminPanel({ isOpen, onClose }) {
       images: productForm.imagesBase64.length > 0 ? productForm.imagesBase64 : ['https://images.unsplash.com/photo-1594938298603-c8148c4dae35?auto=format&fit=crop&w=800&q=80'],
       sizes: productForm.sizes.length > 0 ? productForm.sizes : ['Free Size'],
       description: productForm.description,
-      colorNames: productForm.colorNames,
+      colors: productForm.colors,
     };
     saveCustomProduct(newProduct);
     setCustomProducts(getCustomProducts());
     setSuccessMsg('Product Published Successfully!');
-    setProductForm({ name: '', category: 'mens', price: '', fabric: '', description: '', colorNames: '', imagesBase64: [], sizes: ['M', 'L'] });
+    setProductForm({ name: '', category: 'mens', price: '', fabric: '', description: '', colors: [], imagesBase64: [], sizes: ['M', 'L'] });
     setTimeout(() => setSuccessMsg(''), 3000);
   };
 
@@ -508,8 +553,56 @@ export default function AdminPanel({ isOpen, onClose }) {
                         </div>
 
                         <div>
-                          <label className="block text-xs font-black text-black/70 mb-2 uppercase tracking-wider">Color Options (Comma Separated)</label>
-                          <input type="text" value={productForm.colorNames} onChange={e => setProductForm({...productForm, colorNames: e.target.value})} placeholder="e.g. Red, Blue, Black" className="w-full border-4 border-black/10 rounded-2xl p-3 font-bold focus:outline-none focus:border-[#ff0001] bg-[#ede4dd]" />
+                          <label className="flex items-center gap-2 text-xs font-black text-black/70 mb-2 uppercase tracking-wider">
+                            <Palette className="w-4 h-4" /> Professional Color Picker
+                          </label>
+                          <div className="flex flex-col md:flex-row gap-6 bg-white border-4 border-black/10 p-6 rounded-3xl shadow-lg">
+                            <div className="flex-shrink-0">
+                              <ChromePicker 
+                                color={customColorHex}
+                                onChange={(color) => setCustomColorHex(color.hex)}
+                                disableAlpha={true}
+                              />
+                            </div>
+                            
+                            <div className="flex flex-col justify-center gap-4 w-full">
+                              <div>
+                                <label className="block text-xs font-bold text-black/60 mb-1 uppercase tracking-widest">Color Name</label>
+                                <input 
+                                  type="text" 
+                                  placeholder="e.g. Deep Purple" 
+                                  value={customColorName}
+                                  onChange={(e) => setCustomColorName(e.target.value)}
+                                  className="w-full border-2 border-black/10 rounded-xl p-3 font-bold focus:outline-none focus:border-[#ff0001] bg-[#ede4dd]" 
+                                />
+                              </div>
+                              <button 
+                                type="button"
+                                onClick={handleAddCustomColor}
+                                className="w-full bg-black text-white font-black uppercase tracking-widest py-3 rounded-xl hover:bg-[#ff0001] transition-colors flex items-center justify-center gap-2 shadow-md"
+                              >
+                                <PlusCircle className="w-5 h-5" /> Add Color
+                              </button>
+                            </div>
+                          </div>
+                          
+                          {/* Selected Colors Tags */}
+                          {productForm.colors.length > 0 && (
+                            <div className="mt-4 p-4 bg-[#ede4dd] border-2 border-black/10 rounded-2xl">
+                              <span className="text-xs font-black text-black/50 uppercase tracking-widest mb-3 block">Selected Colors ({productForm.colors.length}):</span>
+                              <div className="flex flex-wrap gap-2">
+                                {productForm.colors.map(c => (
+                                  <div key={c.name} className="flex items-center gap-2 text-xs font-bold uppercase bg-white border-2 border-black/10 pl-3 pr-2 py-1.5 rounded-xl shadow-sm">
+                                    <span className="w-4 h-4 rounded-full border border-black/20 shadow-inner" style={{backgroundColor: c.hex}}></span>
+                                    {c.name}
+                                    <button type="button" onClick={() => handleColorToggle(c)} className="ml-2 text-black/40 hover:text-[#ff0001] transition-colors p-1 bg-black/5 rounded-full">
+                                      <X className="w-3 h-3" />
+                                    </button>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
                         </div>
 
                         <div>

@@ -1,4 +1,6 @@
 import React from 'react';
+import { useWishlist } from '../context/WishlistContext';
+import { Heart } from 'lucide-react';
 
 export default function Header({
   cartCount,
@@ -7,8 +9,11 @@ export default function Header({
   currentUser,
   onOpenAuth,
   onOpenDashboard,
-  onShopClick
+  onShopClick,
+  onOpenWishlist
 }) {
+  const { wishlist } = useWishlist();
+
   return (
     <header className="w-full flex items-center justify-between px-4 md:px-6 py-4 md:py-6 text-[15px] md:text-[22px] font-medium leading-none sticky top-0 z-50 bg-[#ede4dd]">
       {/* Left Logo */}
@@ -35,6 +40,10 @@ export default function Header({
         <button onClick={onShopClick} className="hidden md:block relative group overflow-hidden">
           <span className="block relative z-10 transition-transform duration-300 group-hover:-translate-y-full">Shop</span>
           <span className="absolute left-0 top-full w-full transition-transform duration-300 group-hover:-translate-y-full underline decoration-[1.5px] underline-offset-4">Shop</span>
+        </button>
+
+        <button onClick={onOpenWishlist} className="hover:opacity-80 transition-opacity flex items-center gap-1 font-bold md:font-medium whitespace-nowrap">
+          <Heart className="w-4 h-4 md:w-5 md:h-5 inline" /> ({wishlist.length})
         </button>
 
         <button onClick={onOpenCart} className="hover:opacity-80 transition-opacity font-bold md:font-medium whitespace-nowrap">
