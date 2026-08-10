@@ -135,7 +135,7 @@ export default function QuickViewModal({
 
             {/* Price */}
             <div className="flex items-baseline gap-3 my-3">
-              <span className="font-display font-extrabold text-3xl text-maroon-700">
+              <span className="font-sans tabular-nums font-extrabold text-3xl text-maroon-700">
                 ₹{product.price?.toLocaleString('en-IN')}
               </span>
               {product.originalPrice && (

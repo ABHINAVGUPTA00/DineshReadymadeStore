@@ -211,7 +211,7 @@ export default function OutfitBuilder({ products, onAddOutfitToCart }) {
                 </div>
                 <div className="flex justify-between text-xl font-extrabold text-white pt-2 border-t border-white/10">
                   <span>Bundle Total:</span>
-                  <span className="text-white font-display">₹{finalPrice.toLocaleString('en-IN')}</span>
+                  <span className="text-white font-sans tabular-nums">₹{finalPrice.toLocaleString('en-IN')}</span>
                 </div>
               </div>
             </div>

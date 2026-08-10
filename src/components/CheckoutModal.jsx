@@ -168,7 +168,7 @@ export default function CheckoutModal({
             {/* Order Total Preview */}
             <div className="bg-white p-4 rounded-xl border-2 border-black/10 flex justify-between items-center text-sm font-bold uppercase mt-6">
               <span>Total Payable Amount:</span>
-              <span className="font-display font-extrabold text-xl text-[#ff0001]">
+              <span className="font-sans tabular-nums font-extrabold text-xl text-[#ff0001]">
                 ₹{orderTotals.total.toLocaleString('en-IN')}
               </span>
             </div>

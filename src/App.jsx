@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 import { Toaster } from 'react-hot-toast';
@@ -10,6 +10,7 @@ import CartDrawer from './components/CartDrawer';
 import WishlistDrawer from './components/WishlistDrawer';
 import AuthModal from './components/AuthModal';
 import CheckoutModal from './components/CheckoutModal';
+import ContactModal from './components/ContactModal';
 
 import Home from './pages/Home';
 import AdminDashboard from './pages/Admin/AdminDashboard';
@@ -26,6 +27,8 @@ export default function App() {
   const [isCartDrawerOpen, setIsCartDrawerOpen] = useState(false);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [isWishlistOpen, setIsWishlistOpen] = useState(false);
+  const [isContactOpen, setIsContactOpen] = useState(false);
+  const [isAdminOpen, setIsAdminOpen] = useState(false);
   const [checkoutTotals, setCheckoutTotals] = useState({ total: 0, subtotal: 0, promoDiscount: 0, shippingFee: 0 });
   
   const { cartItems, handleUpdateQuantity, handleRemoveItem, clearCart } = useCart();
@@ -34,6 +37,15 @@ export default function App() {
   
   const navigate = useNavigate();
   const location = useLocation();
+
+  const lastClickTimeRef = useRef(0);
+  const handleStoreClick = () => {
+    const now = Date.now();
+    if (now - lastClickTimeRef.current < 400) {
+      setIsAdminOpen(true);
+    }
+    lastClickTimeRef.current = now;
+  };
 
   const handleProceedToCheckout = (total, subtotal, promoDiscount, shippingFee) => {
     if (!currentUser) {
@@ -71,7 +83,6 @@ export default function App() {
           <AnimatePresence mode="wait">
             <Routes location={location} key={location.pathname}>
               <Route path="/" element={<PageTransition><Home onOpenAuth={() => setIsAuthOpen(true)} onOpenCheckout={handleProceedToCheckout} /></PageTransition>} />
-              <Route path="/admin" element={<PageTransition><AdminDashboard isOpen={true} onClose={() => navigate('/')} /></PageTransition>} />
               <Route path="/profile" element={<PageTransition><Profile isOpen={true} onClose={() => navigate('/')} user={currentUser} onLogout={() => { logout(); navigate('/'); }} /></PageTransition>} />
             </Routes>
           </AnimatePresence>
@@ -106,10 +117,29 @@ export default function App() {
             onClearCart={clearCart}
           />
 
+          <ContactModal
+            isOpen={isContactOpen}
+            onClose={() => setIsContactOpen(false)}
+          />
 
-          <div className="w-full text-center py-4 text-xs font-mono opacity-20 hover:opacity-100 transition-opacity">
-            <button onClick={() => navigate('/admin')}>Admin Login</button>
+          <AdminDashboard
+            isOpen={isAdminOpen}
+            onClose={() => setIsAdminOpen(false)}
+          />
+
+
+      <footer className="w-full bg-[#ff0001] text-white py-5 mt-auto z-10 relative">
+        <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4">
+          <p className="text-[11px] md:text-sm font-bold uppercase tracking-widest text-white/80 text-center md:text-left leading-relaxed">
+            &copy; {new Date().getFullYear()} Dinesh Readymade <span onClick={handleStoreClick} className="cursor-default select-none">Store</span>. All Rights Reserved.
+          </p>
+          <div className="flex justify-center gap-4 md:gap-6 text-[11px] md:text-sm font-bold uppercase tracking-wider text-white/60 whitespace-nowrap">
+            <span className="hover:text-white transition-colors cursor-pointer text-center">Privacy Policy</span>
+            <span className="hover:text-white transition-colors cursor-pointer text-center">Terms of Service</span>
+            <span onClick={() => setIsContactOpen(true)} className="hover:text-white transition-colors cursor-pointer text-center">Contact Us</span>
           </div>
+        </div>
+      </footer>
     </div>
   );
 }
